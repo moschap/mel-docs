@@ -1,0 +1,131 @@
+How to stop the JS Server:
++ lsof -n -i4TCP:8081
++ then kill the node process
+
+Fonts:
+=======
++ NotoSans-Regular
++ Rubik_regukar
+
+
+
+ems-users
+================================================================
+DESCRIPTION:
+The application is an application for emergency services application for IBM challenge. It should be able to handle different types of emergencies all based on some services from IBM and also from other vendors like Google.
+
+SERVICES:
++ Maps - RN component from AirBnB
++ Chat Bubble - RN component from gifty chats or something else
++ UI Components - RN component library - react-native-elements
++ Backend Service - Internal 
++ 
+
+SCREENS:
++ auth - SignInScreen (Title = Sign In)
++ home - HomeScreen (Title =  EMS Home)
++ chat - ChatScreen (Title = Emergency )
++ distress - DistressModeScreen (Title = Distress)
++ safety - SafetyScreen
++ profile - ProfileScreen
+
+{
+    auth: SignInScreen,
+    home: 
+}
+
+{ //StackNavigator
+    auth: SignInScreen (Title = Sign In),
+    main: { //DrawerNavigator
+        home: { //StackNavigator
+            app: HomeScreen (Title =  EMS Home),
+            chat: ChatScreen (Title = Emergency ),
+            distress: DistressModeScreen (Title = Distress),
+            settings: SettingScreen
+        },        
+        profile: ProfileScreen 
+        safety: SafetyScreen,
+    }   
+}
+
+USE-CASES:
++ FIRST-TIME USAGE: 
+1) When a user first downloads the application, they are presented with a screen (auth), where they are required to enter their name and possibly email. 
+2) After the user enters those details and clicks on proceed they are brought to the default page (app), where they are presented with different options for emergencies that they can select from.
+3) On the same page (app), there will be a couple of things: a DrawerView (main) which has 2 options (profile and safety). On the home screen the user will be able to click on distress to enable to distress module/screen.
+4) The chat screen is enabled when a user selects an option for an emergency eg Fire. When an option is selected then the chat view is automatically opened with the selected option enabled.
+5) The user can interact with the chat screen to setup the Emergency and then exit when done.
+6) The user can return to the home screen and select the Drawer to select the profile or safety screens.
+7) If the profile screen is selected then the user can edit their profile which includes the fields (firstname*, lastname, phonenumber*, email etc)
+8) If the user selects safety screen then they can view a list of weather and location specific advisory information from the application based on the users preferences.
+
+Milestone 1 - v1 - Application Screens and Design:
++ Ability to login to the application when a user supplies a firstname and mobile number.
++ Ability to navigate to the home screen after a user has logged in with a name and mobile number.
++ Ability to click on the DrawerNavigator on the home view and select the profile screen and navigate to that screen.
++ Ability to click on the DrawerNavigator on the home view and select the safety screen and navigate to that screen.
++ Ability to see all the available Emergency options for the application when the user navigates to the home page.
++ Ability to click on any of the Emergency options and have the application navigate the user to the chat screen.
+
++ Ability for a user to attach pictures from the chat screen as update for an emergency report. - not added to issues
++ Ability to capture location of emergency either through the users GPS or through the user manually adding a location.
++ Ability to click on the settings button from the home screen and navigate to that screen.
++ Ability to enable saving of chat history after application restart from the settings screen. - maybe removed
++ Ability for a user to set a location that they want to receive weather updates for from the settings screen. - not added to issues
++ Ability to save user chat history to AsyncStorage if that option is enabled in the settings screen. - not added to issues
++ Ability to save user default weather location that they want to see updates for in AsyncStorage if enabled in the settings screen. - not added to issues
+
+Milestone 2 - v2 - Integration to Backend Services:
++ Ability to send a new Emergency report to the Backend as the user is generating it from the chat screen.
++ Ability to send the users location detail to the Backend in addition to the reported emergency from the chat screen.
++ Ability to send preferred location to Backend for weather informations and updates from the settings screen.
++ Ability to recieve notification from the Backend with the new weather updates and inform the user of the update.
++ Ability to ask the user to confirm that his/her issue is not the same as another issue that has been reported within a certain raduis of their own issue.
+
+
+
+Chat steps:
++ Ability to enter user chat by using the textfield that is at the bottom of a 
+chat screen.
++ Ability to add entered text to the redux store for storage.
++ Ability to add entered text from the user to the list of chat conversation.
++ Ability to send entered text to the server for processing.
++ Ability to receive response from server and add to the redux store.
++ Ability to display received updates from the server to the users chat list.
+
+
+URL:
+=================================
++ USER ACCOUNT MANAGEMENT - [service/accounts]:
+Description - A mobile application user can use this route to create their account on the application. When the user first downloads the app, they are required to enter some details, this is required to identify the user but is not required next time that the user accesses the application.
+Request: {email, fullName, preferredLanguage(2 letter format)}
+Response: {token: '123433'}
+
++ EMERGERNCY REPORTS - [service/emergency]: 
+Description - This is used in the application to receive an emergency report from a mobile app user. This route can perform the following actions 
+    1) mobile app (4) <-> (1) service/emergency (3) <-> (2) watson conversation
+    2) mobile app (5) <-> (1) service/emergency -> (2) watson conversation
+                          (4) | (3)
+                    (other services eg Google Maps)
+    NB: the numbers in bracket are the steps in the process. Move from lowest to highest.
+A reponse payload to the mobile application can also carry actions, eg displayButton. Also when a conversation is concluded (the backend will deduct this when it recives an action from watson that informs it that it has all the details it needs to dispatch an emergency), the core will automatically generate a list of agents that are within a certain promity to the emergency site and it will automatically dispatch the issues to them. So in essense the core needs to be able to route emergency cases to field agents to handle them. When that is done then it will also automatically create a case, which is a summary of an emergerncy report.
+
+Request: {message, address, longitude, latitude, context}
+DB: id, userId, location, message, pictures, voicenotes, emergencyType (fire/ kidnap etc)
+Response: {JSON payload}
+
++ LOCATION - [service/location]:
+Description - This is used by the core to collect intermitent location payload from the emergency field agents and save them.
+
+Request - id, agentId, longitude, latitude
+
++ CASE MANAGEMENT - [service/case/{caseId}]:
+Description - This is a route to manage any case that has been created when an Emergency has been reported.
+
+Request - id, emergency_id, status, assignedTo, createdAt, updatedAt
+
++ CASE NOTES - [service/case/{caseId}/notes]:
+Description - This is a route that is used to update the attached notes for a case. When a case is created, from the web view the admin should be able to interact with that case by clicking its icon on the map which opens a side panel. From that side panel the admin can see at a minimum of the following details - (Emergency type, reporting user, assigned agents, location and then a trail of notes that is attached to that case. Notes can be text, picture, voicenote that are all related to this case.)
+Request - caseId, description, evidence(picture, voicenote)
+
+

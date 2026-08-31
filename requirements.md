@@ -1,4 +1,6 @@
 # Summary
+ERS application is at the heart of it an emergency reporting and routing service, however it re-works the current model for emergency reporting and routing with
+emphasis on automation and enhancing the routing of raised emergencies to the responders that will handle them as quickly as possible.
 
 ## Principals
 
@@ -16,5 +18,9 @@
 - Raise a report when one of the report channels is unavailable
 - Create aggregrate domains around escalation/assistance/awareness that is scoped to user defined boundaries, e.g Wards -> Local Government -> State -> National
 - Support third-party alerts that are raised based on defined priorities on the ERS. E.g silent alerts from banks during a robbery can raise an alert directly on the system with the necessary context pulled in.
+- A natural diastater takes out communication or power lines
+- There is a riot and there is a huge spike in emergency requests such that available resources are overwhelmed.
+- Emegency report is missing key details that can help responders with resolution.
+- User reports an emergency in their native language different from English
 
 If we deploy acros Nigeria where the level of experience is not evenly distributed, is there a way to allow less experienced states collaborate and receive help quickly from nearby states.
